@@ -1,0 +1,9 @@
+uint8 HEAD=0
+uint8 REYE=1
+uint8 LEYE=2
+uint8 REAR=3
+uint8 LEAR=4
+uint8 CHEST=5
+uint8 RFOOT=6
+uint8 LFOOT=7
+uint8 NUMLEDS=8

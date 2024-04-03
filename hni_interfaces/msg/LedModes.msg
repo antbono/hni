@@ -1,0 +1,3 @@
+uint8 STEADY=0
+uint8 BLINKING=1
+uint8 LOOP=2

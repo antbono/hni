@@ -1,0 +1,16 @@
+# Request: 
+uint8[2] leds
+uint8 mode
+float32 frequency
+std_msgs/ColorRGBA[8] colors 		# max 8 colors for eyes
+float32[12] intensities				# max 12 leds for head
+float32 duration #seconds
+---
+# Result
+bool success
+
+---
+#Feedback
+ 
+
+

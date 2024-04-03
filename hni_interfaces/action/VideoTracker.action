@@ -1,0 +1,12 @@
+# Request: string for the selected camera
+string camera_id
+
+---
+# Result: success tracking the target feature
+bool success
+
+---
+#Feedback: center of the tracked feature
+geometry_msgs/Point center 
+
+

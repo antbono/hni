@@ -1,0 +1,12 @@
+# Request: string for the file path where joints sequence is stored
+string path
+
+---
+# Result: success in playing the joints sequence
+bool success
+
+---
+#Feedback:
+uint8 percentage
+float32[<=25] frame
+
