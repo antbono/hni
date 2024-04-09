@@ -20,7 +20,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: ubuntu:jammy
 
@@ -33,3 +33,10 @@ jobs:
       - uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: humble
+          colcon-defaults: |
+            {
+              "build": {
+                "symlink-install": false
+              }
+            }
+          vcs-repo-file-url: dependencies.repos
