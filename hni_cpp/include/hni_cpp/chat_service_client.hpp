@@ -29,26 +29,21 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
+namespace hni_chat_service_client
+{
 
-
-namespace hni_chat_service_client {
-
-
-class ChatServiceClient : public rclcpp::Node {
-
-  public:
-  explicit ChatServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+class ChatServiceClient : public rclcpp::Node
+{
+public:
+  explicit ChatServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
   virtual ~ChatServiceClient();
 
-  std::string sendSyncReq(std::string & phrase);
+  std::string sendSyncReq(std::string& phrase);
 
-  private:
-
+private:
   rclcpp::Client<hni_interfaces::srv::Chat>::SharedPtr client_ptr_;
-
 };
 
+}  // namespace hni_chat_service_client
 
-}  // namespace hni_gstt_service_client
-
-#endif //HNI_CPP__CHAT_SERVICE_CLIENT_HPP_
+#endif  // HNI_CPP__CHAT_SERVICE_CLIENT_HPP_

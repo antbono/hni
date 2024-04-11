@@ -23,31 +23,20 @@ namespace indexes
 {
 
 static const std::vector<uint8_t> indexes = {
-  nao_lola_command_msgs::msg::JointIndexes::HEADYAW,
-  nao_lola_command_msgs::msg::JointIndexes::HEADPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LSHOULDERPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LSHOULDERROLL,
-  nao_lola_command_msgs::msg::JointIndexes::LELBOWYAW,
-  nao_lola_command_msgs::msg::JointIndexes::LELBOWROLL,
-  nao_lola_command_msgs::msg::JointIndexes::LWRISTYAW,
-  nao_lola_command_msgs::msg::JointIndexes::LHIPYAWPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LHIPROLL,
-  nao_lola_command_msgs::msg::JointIndexes::LHIPPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LKNEEPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LANKLEPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::LANKLEROLL,
-  nao_lola_command_msgs::msg::JointIndexes::RHIPROLL,
-  nao_lola_command_msgs::msg::JointIndexes::RHIPPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::RKNEEPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::RANKLEPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::RANKLEROLL,
-  nao_lola_command_msgs::msg::JointIndexes::RSHOULDERPITCH,
-  nao_lola_command_msgs::msg::JointIndexes::RSHOULDERROLL,
-  nao_lola_command_msgs::msg::JointIndexes::RELBOWYAW,
-  nao_lola_command_msgs::msg::JointIndexes::RELBOWROLL,
-  nao_lola_command_msgs::msg::JointIndexes::RWRISTYAW,
-  nao_lola_command_msgs::msg::JointIndexes::LHAND,
-  nao_lola_command_msgs::msg::JointIndexes::RHAND};
+  nao_lola_command_msgs::msg::JointIndexes::HEADYAW,        nao_lola_command_msgs::msg::JointIndexes::HEADPITCH,
+  nao_lola_command_msgs::msg::JointIndexes::LSHOULDERPITCH, nao_lola_command_msgs::msg::JointIndexes::LSHOULDERROLL,
+  nao_lola_command_msgs::msg::JointIndexes::LELBOWYAW,      nao_lola_command_msgs::msg::JointIndexes::LELBOWROLL,
+  nao_lola_command_msgs::msg::JointIndexes::LWRISTYAW,      nao_lola_command_msgs::msg::JointIndexes::LHIPYAWPITCH,
+  nao_lola_command_msgs::msg::JointIndexes::LHIPROLL,       nao_lola_command_msgs::msg::JointIndexes::LHIPPITCH,
+  nao_lola_command_msgs::msg::JointIndexes::LKNEEPITCH,     nao_lola_command_msgs::msg::JointIndexes::LANKLEPITCH,
+  nao_lola_command_msgs::msg::JointIndexes::LANKLEROLL,     nao_lola_command_msgs::msg::JointIndexes::RHIPROLL,
+  nao_lola_command_msgs::msg::JointIndexes::RHIPPITCH,      nao_lola_command_msgs::msg::JointIndexes::RKNEEPITCH,
+  nao_lola_command_msgs::msg::JointIndexes::RANKLEPITCH,    nao_lola_command_msgs::msg::JointIndexes::RANKLEROLL,
+  nao_lola_command_msgs::msg::JointIndexes::RSHOULDERPITCH, nao_lola_command_msgs::msg::JointIndexes::RSHOULDERROLL,
+  nao_lola_command_msgs::msg::JointIndexes::RELBOWYAW,      nao_lola_command_msgs::msg::JointIndexes::RELBOWROLL,
+  nao_lola_command_msgs::msg::JointIndexes::RWRISTYAW,      nao_lola_command_msgs::msg::JointIndexes::LHAND,
+  nao_lola_command_msgs::msg::JointIndexes::RHAND
+};
 
 }  // namespace indexes
 

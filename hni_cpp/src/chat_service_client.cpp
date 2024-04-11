@@ -14,7 +14,6 @@
 
 #include <string>
 
-
 #include "ament_index_cpp/get_package_share_directory.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -22,26 +21,29 @@
 
 #include "hni_cpp/chat_service_client.hpp"
 
+namespace hni_chat_service_client
+{
 
-namespace hni_chat_service_client {
-
-ChatServiceClient::ChatServiceClient(const rclcpp::NodeOptions & options)
-  : rclcpp::Node("chat_service_client_node", options) {
-
-  this->client_ptr_ =  this->create_client<hni_interfaces::srv::Chat>("chatGPT_service");
+ChatServiceClient::ChatServiceClient(const rclcpp::NodeOptions& options)
+  : rclcpp::Node("chat_service_client_node", options)
+{
+  this->client_ptr_ = this->create_client<hni_interfaces::srv::Chat>("chatGPT_service");
 
   RCLCPP_INFO(this->get_logger(), "ChatServiceClient initialized");
-
 }
 
-ChatServiceClient::~ChatServiceClient() {}
+ChatServiceClient::~ChatServiceClient()
+{
+}
 
-std::string ChatServiceClient::sendSyncReq(std::string & phrase) {
-
+std::string ChatServiceClient::sendSyncReq(std::string& phrase)
+{
   using namespace std::chrono_literals;
 
-  while (!client_ptr_->wait_for_service(1s)) {
-    if (!rclcpp::ok()) {
+  while (!client_ptr_->wait_for_service(1s))
+  {
+    if (!rclcpp::ok())
+    {
       RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for chat service. Exiting.");
       return "ERROR";
     }
@@ -57,16 +59,18 @@ std::string ChatServiceClient::sendSyncReq(std::string & phrase) {
   RCLCPP_DEBUG(this->get_logger(), "wait chatGPT answer..");
   // Wait for the result.
   if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), chat_result) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
+      rclcpp::FutureReturnCode::SUCCESS)
+  {
     chatgpt_answer = chat_result.get()->answer;
     RCLCPP_INFO(this->get_logger(), ("chatGPT answer: " + chatgpt_answer).c_str());
-  } else {
+  }
+  else
+  {
     RCLCPP_ERROR(this->get_logger(), "Failed to call chat_service");
     return "ERROR";
   }
   RCLCPP_DEBUG(this->get_logger(), "chat request completed");
   return chatgpt_answer;
-
 }
 
 }  // namespace hni_chat_service_client

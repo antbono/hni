@@ -15,41 +15,37 @@
 #include "nao_lola_command_msgs/msg/joint_indexes.hpp"
 #include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 
-
 namespace fs = boost::filesystem;
 
+namespace hni_head_track_cpp
+{
 
-namespace hni_head_track_cpp {
-
-class HeadTrackActionClient : public rclcpp::Node {
- public:
-
+class HeadTrackActionClient : public rclcpp::Node
+{
+public:
   using ObjTrack = hni_interfaces::action::VideoTracker;
   using GoalHandleObjTrack = rclcpp_action::ClientGoalHandle<ObjTrack>;
 
-  explicit HeadTrackActionClient(const rclcpp::NodeOptions & options)
-    : Node("head_track_action_client", options) {
-    
-    this->client_ptr_ = rclcpp_action::create_client<ObjTrack>(
-                          this,
-                          "head_track");
+  explicit HeadTrackActionClient(const rclcpp::NodeOptions& options) : Node("head_track_action_client", options)
+  {
+    this->client_ptr_ = rclcpp_action::create_client<ObjTrack>(this, "head_track");
 
-    this->timer_ = this->create_wall_timer(
-                     std::chrono::milliseconds(500),
-                     std::bind(&HeadTrackActionClient::send_goal, this));
+    this->timer_ =
+        this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&HeadTrackActionClient::send_goal, this));
 
-    //this->declare_parameter<std::string>("file", getDefaultFullFilePath());
+    // this->declare_parameter<std::string>("file", getDefaultFullFilePath());
 
     RCLCPP_INFO(this->get_logger(), "HeadTrackActionClient initialized");
-
   }
 
-  void send_goal()  {
+  void send_goal()
+  {
     using namespace std::placeholders;
 
     this->timer_->cancel();
 
-    if (!this->client_ptr_->wait_for_action_server()) {
+    if (!this->client_ptr_->wait_for_action_server())
+    {
       RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
       rclcpp::shutdown();
     }
@@ -58,31 +54,27 @@ class HeadTrackActionClient : public rclcpp::Node {
 
     goal_msg.camera_id = " ";
 
-   auto send_goal_options = rclcpp_action::Client<ObjTrack>::SendGoalOptions();
+    auto send_goal_options = rclcpp_action::Client<ObjTrack>::SendGoalOptions();
 
-    send_goal_options.goal_response_callback =
-      std::bind(&HeadTrackActionClient::goal_response_callback, this, _1);
-    
-    //send_goal_options.feedback_callback =
-    //  std::bind(&HeadTrackActionClient::feedback_callback, this, _1, _2);
-    
-    send_goal_options.result_callback =
-      std::bind(&HeadTrackActionClient::result_callback, this, _1);
+    send_goal_options.goal_response_callback = std::bind(&HeadTrackActionClient::goal_response_callback, this, _1);
 
-    RCLCPP_INFO(this->get_logger(), "Sending goal: "  );
+    // send_goal_options.feedback_callback =
+    //   std::bind(&HeadTrackActionClient::feedback_callback, this, _1, _2);
+
+    send_goal_options.result_callback = std::bind(&HeadTrackActionClient::result_callback, this, _1);
+
+    RCLCPP_INFO(this->get_logger(), "Sending goal: ");
 
     this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
   }
 
-
- private:
-
+private:
   rclcpp_action::Client<ObjTrack>::SharedPtr client_ptr_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
-  std::string getDefaultFullFilePath() {
-    
+  std::string getDefaultFullFilePath()
+  {
     /*
     RCLCPP_INFO(this->get_logger(),"getDefaultFullFilePath ");
     std::string file = "moves/hello.txt";
@@ -100,41 +92,43 @@ class HeadTrackActionClient : public rclcpp::Node {
     RCLCPP_INFO(this->get_logger(), ("File path " + full_path.string()).c_str());
     return full_path.string();
     */
-    
+
     return "/home/nao/rolling_ws/src/hni/hni_moves/moves/fear.txt";
-    //return "hello.txt";  //WORKING
+    // return "hello.txt";  //WORKING
   }
 
-
-  void goal_response_callback(const GoalHandleObjTrack::SharedPtr & goal_handle) {
-    if (!goal_handle) {
+  void goal_response_callback(const GoalHandleObjTrack::SharedPtr& goal_handle)
+  {
+    if (!goal_handle)
+    {
       RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-    } else {
+    }
+    else
+    {
       RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
     }
   }
 
-  void feedback_callback(
-    GoalHandleObjTrack::SharedPtr,
-    const std::shared_ptr<const ObjTrack::Feedback> feedback) {
-
-    //TODO
-
+  void feedback_callback(GoalHandleObjTrack::SharedPtr, const std::shared_ptr<const ObjTrack::Feedback> feedback)
+  {
+    // TODO
   }
 
-  void result_callback(const GoalHandleObjTrack::WrappedResult & result) {
-    switch (result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED:
-      break;
-    case rclcpp_action::ResultCode::ABORTED:
-      RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
-      return;
-    case rclcpp_action::ResultCode::CANCELED:
-      RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
-      return;
-    default:
-      RCLCPP_ERROR(this->get_logger(), "Unknown result code");
-      return;
+  void result_callback(const GoalHandleObjTrack::WrappedResult& result)
+  {
+    switch (result.code)
+    {
+      case rclcpp_action::ResultCode::SUCCEEDED:
+        break;
+      case rclcpp_action::ResultCode::ABORTED:
+        RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+        return;
+      case rclcpp_action::ResultCode::CANCELED:
+        RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+        return;
+      default:
+        RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+        return;
     }
 
     if (result.result->success)

@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build and Test (humble)
+name: Build (humble)
 
 # Controls when the action will run.
 on:
@@ -32,11 +32,6 @@ jobs:
           use-ros2-testing: true
       - uses: ros-tooling/action-ros-ci@v0.3
         with:
+          skip-tests: true
           target-ros2-distro: humble
-          colcon-defaults: |
-            {
-              "build": {
-                "symlink-install": false
-              }
-            }
           vcs-repo-file-url: dependencies.repos

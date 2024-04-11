@@ -17,15 +17,15 @@
 
 #include <functional>
 #include <memory>
-#include <thread>         // std::thread, std::this_thread::yield
-#include <atomic>         // std::atomic, std::atomic_flag, ATOMIC_FLAG_INIT
+#include <thread>  // std::thread, std::this_thread::yield
+#include <atomic>  // std::atomic, std::atomic_flag, ATOMIC_FLAG_INIT
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <string>     // std::string, std::stof std::c_str
+#include <string>  // std::string, std::stof std::c_str
 
-#include <iostream>   // std::cout
+#include <iostream>  // std::cout
 
 #include "hni_interfaces/action/joints_play.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -35,43 +35,39 @@
 #include "nao_lola_command_msgs/msg/joint_indexes.hpp"
 #include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 
-namespace hni_joints_play_action_server {
+namespace hni_joints_play_action_server
+{
 
 using JointsPlay = hni_interfaces::action::JointsPlay;
 using GoalHandleJointsPlay = rclcpp_action::ServerGoalHandle<JointsPlay>;
 
-class JointsPlayActionServer : public rclcpp::Node {
+class JointsPlayActionServer : public rclcpp::Node
+{
+public:
+  explicit JointsPlayActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  virtual ~JointsPlayActionServer();
 
-  public:
-	explicit JointsPlayActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
-	virtual ~JointsPlayActionServer();
-
-  private:
-
+private:
   rclcpp_action::Server<JointsPlay>::SharedPtr action_server_;
   rclcpp::Publisher<nao_lola_command_msgs::msg::JointPositions>::SharedPtr jpos_pub_;
   rclcpp::Publisher<nao_lola_command_msgs::msg::JointStiffnesses>::SharedPtr jstiff_pub_;
 
   std::ifstream ifs_;
   std::vector<float> recorded_joints_;
-  
+
   nao_lola_command_msgs::msg::JointPositions jpos_cmd_;
   nao_lola_command_msgs::msg::JointStiffnesses jstiff_cmd_;
 
   bool fileSuccessfullyRead_;
   std::atomic<bool> free_;
 
-
-  rclcpp_action::GoalResponse handleGoal( const rclcpp_action::GoalUUID & uuid,
-  	std::shared_ptr<const JointsPlay::Goal> goal);
-  rclcpp_action::CancelResponse handleCancel( const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
+  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid,
+                                         std::shared_ptr<const JointsPlay::Goal> goal);
+  rclcpp_action::CancelResponse handleCancel(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
   void execute(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
-
-
 };
 
-} // namespace hni_joints_play_action_server
-
+}  // namespace hni_joints_play_action_server
 
 #endif  // HNI_CPP__JOINTS_PLAY_ACTION_SERVER_HPP_

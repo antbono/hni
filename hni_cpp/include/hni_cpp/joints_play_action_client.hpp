@@ -30,37 +30,33 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
-//namespace fs = boost::filesystem;
+// namespace fs = boost::filesystem;
 
-
-namespace hni_joints_play_action_client {
+namespace hni_joints_play_action_client
+{
 
 using JointsPlay = hni_interfaces::action::JointsPlay;
 using GoalHandleJointsPlay = rclcpp_action::ClientGoalHandle<JointsPlay>;
 
-class JointsPlayActionClient: public rclcpp::Node {
+class JointsPlayActionClient : public rclcpp::Node
+{
+public:
+  explicit JointsPlayActionClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  virtual ~JointsPlayActionClient();
 
-  public:
-	explicit JointsPlayActionClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
-	virtual ~JointsPlayActionClient();
+  void sendAsyncGoal(std::string& action_path);
+  // void sendGoal();
 
-	void sendAsyncGoal(std::string & action_path);
-	//void sendGoal();
+private:
+  rclcpp_action::Client<JointsPlay>::SharedPtr client_ptr_;
+  rclcpp::TimerBase::SharedPtr timer_;
 
-  private:
-
-  	rclcpp_action::Client<JointsPlay>::SharedPtr client_ptr_;
-  	rclcpp::TimerBase::SharedPtr timer_;
-
-  	std::string getDefaultFullFilePath();
-  	void goalResponseCallback(const GoalHandleJointsPlay::SharedPtr & goal_handle);
-  	void feedbackCallback( GoalHandleJointsPlay::SharedPtr,
-    	const std::shared_ptr<const JointsPlay::Feedback> feedback);
-    void resultCallback(const GoalHandleJointsPlay::WrappedResult & result);
-
+  std::string getDefaultFullFilePath();
+  void goalResponseCallback(const GoalHandleJointsPlay::SharedPtr& goal_handle);
+  void feedbackCallback(GoalHandleJointsPlay::SharedPtr, const std::shared_ptr<const JointsPlay::Feedback> feedback);
+  void resultCallback(const GoalHandleJointsPlay::WrappedResult& result);
 };
 
-} // namespace hni_joints_play_action_client
+}  // namespace hni_joints_play_action_client
 
-
-#endif //HNI_CPP__JOINTS_PLAY_ACTION_CLIENT_HPP_
+#endif	// HNI_CPP__JOINTS_PLAY_ACTION_CLIENT_HPP_

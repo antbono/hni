@@ -29,26 +29,21 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
+namespace hni_gtts_service_client
+{
 
-
-namespace hni_gtts_service_client {
-
-
-class GttsServiceClient : public rclcpp::Node {
-
-  public:
-  explicit GttsServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+class GttsServiceClient : public rclcpp::Node
+{
+public:
+  explicit GttsServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
   virtual ~GttsServiceClient();
 
-  void sendSyncReq(std::string & text_to_speak);
+  void sendSyncReq(std::string& text_to_speak);
 
-  private:
-
+private:
   rclcpp::Client<hni_interfaces::srv::TextToSpeech>::SharedPtr client_ptr_;
-
 };
 
+}  // namespace hni_gtts_service_client
 
-}  // namespace hni_gstt_service_client
-
-#endif //HNI_CPP__GTTS_SERVICE_CLIENT_HPP_
+#endif  // HNI_CPP__GTTS_SERVICE_CLIENT_HPP_

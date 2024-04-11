@@ -26,26 +26,29 @@
 
 #include "hni_cpp/gtts_service_client.hpp"
 
+namespace hni_gtts_service_client
+{
 
-namespace hni_gtts_service_client {
-
-GttsServiceClient::GttsServiceClient(const rclcpp::NodeOptions & options)
-  : rclcpp::Node("gtts_service_client_node", options) {
-
-  this->client_ptr_ =  this->create_client<hni_interfaces::srv::TextToSpeech>("gtts_service");
+GttsServiceClient::GttsServiceClient(const rclcpp::NodeOptions& options)
+  : rclcpp::Node("gtts_service_client_node", options)
+{
+  this->client_ptr_ = this->create_client<hni_interfaces::srv::TextToSpeech>("gtts_service");
 
   RCLCPP_INFO(this->get_logger(), "GttsServiceClient initialized");
-
 }
 
-GttsServiceClient::~GttsServiceClient() {}
+GttsServiceClient::~GttsServiceClient()
+{
+}
 
-void GttsServiceClient::sendSyncReq(std::string & text_to_speak) {
-
+void GttsServiceClient::sendSyncReq(std::string& text_to_speak)
+{
   using namespace std::chrono_literals;
 
-  while (!client_ptr_->wait_for_service(1s)) {
-    if (!rclcpp::ok()) {
+  while (!client_ptr_->wait_for_service(1s))
+  {
+    if (!rclcpp::ok())
+    {
       RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for GTTS service. Exiting.");
       return;
     }
@@ -58,9 +61,12 @@ void GttsServiceClient::sendSyncReq(std::string & text_to_speak) {
   auto gtts_result = client_ptr_->async_send_request(gtts_request);
   // Wait for the result.
   if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), gtts_result) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
+      rclcpp::FutureReturnCode::SUCCESS)
+  {
     RCLCPP_INFO(this->get_logger(), "GTTS request completed: %d", gtts_result.get()->success);
-  } else {
+  }
+  else
+  {
     RCLCPP_ERROR(this->get_logger(), "Failed to call gtts_service");
     return;
   }

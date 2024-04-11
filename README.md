@@ -4,9 +4,9 @@
 
 # Human NAO Interaction (HNI)
 
-This package is part of the [Open Access NAO](https://github.com/antbono/OAN) framework.
+This package provides the user with some very useful capabilities for HRI experimentation with the NAO v6 robot.
 
-It provides the user with some very useful capabilities for HRI experimentation.
+It is part of the [Open Access NAO](https://github.com/antbono/OAN) framework.
 
 
 ## Main features
@@ -26,6 +26,6 @@ you need only move the limbs of interest in the desired manner and the robot wil
 For more info, please refer to the related [paper](https://arxiv.org/abs/2403.13960).
 
 
-### Note on CI
+## Usage
 
-The failing status is due to the colcon `--symlink-install` option that [action-ros-ci](https://github.com/ros-tooling/action-ros-ci) uses. At the moment the symlinking cannot be disabled but we are actively working with action-ros-ci maintainers (see issue [815](https://github.com/ros-tooling/action-ros-ci/issues/815)). 
+

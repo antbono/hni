@@ -1,13 +1,13 @@
 #include <cstring>
 #include <functional>
-#include <iostream>   // std::cout
+#include <iostream>  // std::cout
 #include <memory>
-#include <string>     // std::string, std::stof
+#include <string>  // std::string, std::stof
 #include <thread>
 #include <unordered_map>
-//#include <vector>
+// #include <vector>
 
-//#include <chrono>
+// #include <chrono>
 
 #include "hni_interfaces/action/chat_play.hpp"
 
@@ -18,95 +18,97 @@
 
 #include "hni_cpp/chat_action_client.hpp"
 
-namespace hni_chat_action_client {
+namespace hni_chat_action_client
+{
 
-ChatActionClient::ChatActionClient(const rclcpp::NodeOptions & options)
-    : rclcpp::Node("chat_action_client_node", options) {
-
+ChatActionClient::ChatActionClient(const rclcpp::NodeOptions& options)
+  : rclcpp::Node("chat_action_client_node", options)
+{
   using namespace std::placeholders;
-  this->client_ptr_ = rclcpp_action::create_client<hni_interfaces::action::ChatPlay>(
-                        this,
-                        "chat_play");
+  this->client_ptr_ = rclcpp_action::create_client<hni_interfaces::action::ChatPlay>(this, "chat_play");
 
-  this->timer_ = this->create_wall_timer(
-                   std::chrono::milliseconds(500),
-                   std::bind(&ChatActionClient::sendAsyncGoal, this));
-
+  this->timer_ =
+      this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&ChatActionClient::sendAsyncGoal, this));
 
   RCLCPP_INFO(this->get_logger(), "ChatActionClient initialized");
-
 }
 
-ChatActionClient::~ChatActionClient() {}
+ChatActionClient::~ChatActionClient()
+{
+}
 
-void ChatActionClient::sendAsyncGoal() {
+void ChatActionClient::sendAsyncGoal()
+{
   using namespace std::placeholders;
 
   this->timer_->cancel();
 
-  if (!this->client_ptr_->wait_for_action_server()) {
+  if (!this->client_ptr_->wait_for_action_server())
+  {
     RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
     rclcpp::shutdown();
   }
 
   auto goal_msg = hni_interfaces::action::ChatPlay::Goal();
 
-  auto send_goal_options =  rclcpp_action::Client<hni_interfaces::action::ChatPlay>::SendGoalOptions();
+  auto send_goal_options = rclcpp_action::Client<hni_interfaces::action::ChatPlay>::SendGoalOptions();
 
-  send_goal_options.goal_response_callback =
-    std::bind(&ChatActionClient::goalResponseCallback, this, _1);
+  send_goal_options.goal_response_callback = std::bind(&ChatActionClient::goalResponseCallback, this, _1);
 
-  //send_goal_options.feedback_callback =
-  //  std::bind(&ChatActionClient::feedbackCallback, this, _1, _2);
+  // send_goal_options.feedback_callback =
+  //   std::bind(&ChatActionClient::feedbackCallback, this, _1, _2);
 
-  send_goal_options.result_callback =
-    std::bind(&ChatActionClient::resultCallback, this, _1);
+  send_goal_options.result_callback = std::bind(&ChatActionClient::resultCallback, this, _1);
 
-  RCLCPP_INFO(this->get_logger(), "Sending goal: "  );
+  RCLCPP_INFO(this->get_logger(), "Sending goal: ");
 
   this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 }
 
-
 void ChatActionClient::goalResponseCallback(
-  const rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::SharedPtr & goal_handle) {
-  if (!goal_handle) {
+    const rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::SharedPtr& goal_handle)
+{
+  if (!goal_handle)
+  {
     RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-  } else {
+  }
+  else
+  {
     RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
   }
 }
 
 void ChatActionClient::feedbackCallback(
-  rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::SharedPtr,
-  const std::shared_ptr<const hni_interfaces::action::ChatPlay::Feedback> feedback) {
-
-  //TODO
-
+    rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::SharedPtr,
+    const std::shared_ptr<const hni_interfaces::action::ChatPlay::Feedback> feedback)
+{
+  // TODO
 }
 
 void ChatActionClient::resultCallback(
-  const rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::WrappedResult & result) {
-  switch (result.code) {
-  case rclcpp_action::ResultCode::SUCCEEDED:
-    break;
-  case rclcpp_action::ResultCode::ABORTED:
-    RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
-    return;
-  case rclcpp_action::ResultCode::CANCELED:
-    RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
-    return;
-  default:
-    RCLCPP_ERROR(this->get_logger(), "Unknown result code");
-    return;
+    const rclcpp_action::ClientGoalHandle<hni_interfaces::action::ChatPlay>::WrappedResult& result)
+{
+  switch (result.code)
+  {
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+      return;
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+      return;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+      return;
   }
 
-  //if (result.result->success)
+  // if (result.result->success)
   RCLCPP_INFO(this->get_logger(), "Joints posisitions regulary played.");
 
-  //rclcpp::shutdown();
+  // rclcpp::shutdown();
 }
 
-}  // hni_chat_action_client
+}  // namespace hni_chat_action_client
 
 RCLCPP_COMPONENTS_REGISTER_NODE(hni_chat_action_client::ChatActionClient)

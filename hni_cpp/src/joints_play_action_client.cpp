@@ -17,16 +17,13 @@
 
 namespace fs = boost::filesystem;
 
+namespace hni_joints_play_action_client
+{
 
-namespace hni_joints_play_action_client {
-
-
-JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions & options)
-  : rclcpp::Node("joints_play_action_server_node", options) {
-
-  this->client_ptr_ = rclcpp_action::create_client<JointsPlay>(
-                        this,
-                        "joints_play");
+JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions& options)
+  : rclcpp::Node("joints_play_action_server_node", options)
+{
+  this->client_ptr_ = rclcpp_action::create_client<JointsPlay>(this, "joints_play");
 
   /*this->timer_ = this->create_wall_timer(
                    std::chrono::milliseconds(500),
@@ -35,10 +32,11 @@ JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions & optio
   this->declare_parameter<std::string>("file", getDefaultFullFilePath());
 
   RCLCPP_INFO(this->get_logger(), "JointsPlayActionClient initialized");
-
 }
 
-JointsPlayActionClient::~JointsPlayActionClient() {}
+JointsPlayActionClient::~JointsPlayActionClient()
+{
+}
 
 /*
 void JointsPlayActionClient::sendGoal()  {
@@ -74,13 +72,14 @@ void JointsPlayActionClient::sendGoal()  {
   this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 }*/
 
-
-void JointsPlayActionClient::sendAsyncGoal(std::string & action_path)  {
+void JointsPlayActionClient::sendAsyncGoal(std::string& action_path)
+{
   using namespace std::placeholders;
 
-  //this->timer_->cancel();
+  // this->timer_->cancel();
 
-  if (!this->client_ptr_->wait_for_action_server()) {
+  if (!this->client_ptr_->wait_for_action_server())
+  {
     RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
     rclcpp::shutdown();
   }
@@ -91,23 +90,19 @@ void JointsPlayActionClient::sendAsyncGoal(std::string & action_path)  {
 
   auto send_goal_options = rclcpp_action::Client<JointsPlay>::SendGoalOptions();
 
-  send_goal_options.goal_response_callback =
-    std::bind(&JointsPlayActionClient::goalResponseCallback, this, _1);
+  send_goal_options.goal_response_callback = std::bind(&JointsPlayActionClient::goalResponseCallback, this, _1);
 
-  send_goal_options.feedback_callback =
-    std::bind(&JointsPlayActionClient::feedbackCallback, this, _1, _2);
+  send_goal_options.feedback_callback = std::bind(&JointsPlayActionClient::feedbackCallback, this, _1, _2);
 
-  send_goal_options.result_callback =
-    std::bind(&JointsPlayActionClient::resultCallback, this, _1);
+  send_goal_options.result_callback = std::bind(&JointsPlayActionClient::resultCallback, this, _1);
 
-  RCLCPP_INFO(this->get_logger(), ("Sending goal: " + action_path).c_str() );
+  RCLCPP_INFO(this->get_logger(), ("Sending goal: " + action_path).c_str());
 
   this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 }
 
-
-std::string JointsPlayActionClient::getDefaultFullFilePath() {
-
+std::string JointsPlayActionClient::getDefaultFullFilePath()
+{
   /*
   RCLCPP_INFO(this->get_logger(),"getDefaultFullFilePath ");
   std::string file = "moves/hello.txt";
@@ -127,39 +122,42 @@ std::string JointsPlayActionClient::getDefaultFullFilePath() {
   */
 
   return "/home/nao/rolling_ws/src/hni/hni_cpp/moves/fear.txt";
-  //return "hello.txt";  //WORKING
+  // return "hello.txt";  //WORKING
 }
 
-
-void JointsPlayActionClient::goalResponseCallback(const GoalHandleJointsPlay::SharedPtr & goal_handle) {
-  if (!goal_handle) {
+void JointsPlayActionClient::goalResponseCallback(const GoalHandleJointsPlay::SharedPtr& goal_handle)
+{
+  if (!goal_handle)
+  {
     RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-  } else {
+  }
+  else
+  {
     RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
   }
 }
 
-void JointsPlayActionClient::feedbackCallback(
-  GoalHandleJointsPlay::SharedPtr,
-  const std::shared_ptr<const JointsPlay::Feedback> feedback) {
-
-  //TODO
-
+void JointsPlayActionClient::feedbackCallback(GoalHandleJointsPlay::SharedPtr,
+                                              const std::shared_ptr<const JointsPlay::Feedback> feedback)
+{
+  // TODO
 }
 
-void JointsPlayActionClient::resultCallback(const GoalHandleJointsPlay::WrappedResult & result) {
-  switch (result.code) {
-  case rclcpp_action::ResultCode::SUCCEEDED:
-    break;
-  case rclcpp_action::ResultCode::ABORTED:
-    RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
-    return;
-  case rclcpp_action::ResultCode::CANCELED:
-    RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
-    return;
-  default:
-    RCLCPP_ERROR(this->get_logger(), "Unknown result code");
-    return;
+void JointsPlayActionClient::resultCallback(const GoalHandleJointsPlay::WrappedResult& result)
+{
+  switch (result.code)
+  {
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+      return;
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+      return;
+    default:
+      RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+      return;
   }
 
   if (result.result->success)

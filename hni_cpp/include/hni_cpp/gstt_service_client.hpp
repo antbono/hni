@@ -29,26 +29,21 @@
 
 #include "std_srvs/srv/set_bool.hpp"
 
+namespace hni_gstt_service_client
+{
 
-namespace hni_gstt_service_client {
-
-
-class GsttServiceClient : public rclcpp::Node {
-
-  public:
-  explicit GsttServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+class GsttServiceClient : public rclcpp::Node
+{
+public:
+  explicit GsttServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
   virtual ~GsttServiceClient();
 
   std::string sendSyncReq();
 
-  private:
-
+private:
   rclcpp::Client<std_srvs::srv::SetBool>::SharedPtr client_ptr_;
-
 };
-
-  
 
 }  // namespace hni_gstt_service_client
 
-#endif //HNI_CPP__GSTT_SERVICE_CLIENT_HPP_
+#endif  // HNI_CPP__GSTT_SERVICE_CLIENT_HPP_
