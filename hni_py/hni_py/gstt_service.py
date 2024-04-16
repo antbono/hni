@@ -56,16 +56,16 @@ class GSTTService(Node):
             #model="latest_short",
             model="latest_long"
         )
-        self.timeout = speech.StreamingRecognitionConfig.VoiceActivityTimeout(
-            speech_start_timeout=duration1,
-            speech_end_timeout=duration2
-        )
+        #self.timeout = speech.StreamingRecognitionConfig.VoiceActivityTimeout(
+        #    speech_start_timeout=duration1,
+        #    speech_end_timeout=duration2
+        #)
 
         self.streaming_config = speech.StreamingRecognitionConfig(
             config=self.config,
-            #single_utterance=True,
+            single_utterance=True,
             #interim_results=True,
-            enable_voice_activity_events=True, voice_activity_timeout=self.timeout
+            #enable_voice_activity_events=True, voice_activity_timeout=self.timeout,
         )
 
         self.srv = self.create_service(SetBool, "gstt_service", self.gstt_callback)
@@ -74,7 +74,7 @@ class GSTTService(Node):
 
 
 
-        self.get_logger().info('GSTTService initializedaa')
+        self.get_logger().info('GSTTService initialized')
 
 
     
@@ -107,7 +107,7 @@ class GSTTService(Node):
                 for response in responses_iterator:         #BLOCKING!
                     self.get_logger().info('responses loop')
                     if time.time() - start_time > timeout_seconds:
-                        self.get_logger().error("Timeout: No final result after %d seconds." % timeout_seconds)
+                        self.get_logger().error('Timeout: No final result after %d seconds.' % (timeout_seconds))
                         sResponse.success = False
                         sResponse.message = "timeout"
                         break  # Exit the loop if we've reached the timeout without a final result
@@ -126,14 +126,14 @@ class GSTTService(Node):
                         final_transcript_received = True
                         # Extract the top alternative of the final result
                         top_transcript = result.alternatives[0].transcript
-                        self.get_logger().info(f"Final transcript: {top_transcript}")
+                        self.get_logger().info(f'Final transcript: {top_transcript}')
                         sResponse.success = True
                         sResponse.message = top_transcript
                         break  # Exit the loop since we've received a final transcript
                     self.get_logger().info('final result checked')
 
                     if not final_transcript_received:
-                        self.get_logger().error("No final transcript received.")
+                        self.get_logger().error('No final transcript received.')
                         sResponse.success = False
                         sResponse.message = "No final transcript received."
 
@@ -141,7 +141,7 @@ class GSTTService(Node):
                 return sResponse
 
             except Exception as e:
-                self.get_logger().error(f"Error during speech recognition: {e}")
+                self.get_logger().error(f'Error during speech recognition: {e}')
                 sResponse.success = False
                 return sResponse
 
@@ -228,11 +228,11 @@ class GSTTService(Node):
 
             except GoogleAPICallError as e:
                 if e.code == code_pb2.PERMISSION_DENIED:
-                    self.get_logger().error("Permission denied error.")
+                    self.get_logger().error('Permission denied error.')
                 elif e.code == code_pb2.NOT_FOUND:
-                    self.get_logger().error("Resource not found.")
+                    self.get_logger().error('Resource not found.')
                 else:
-                    self.get_logger().error(f"An error occurred: {e}")
+                    self.get_logger().error(f'An error occurred: {e}')
             return ""    
     
 

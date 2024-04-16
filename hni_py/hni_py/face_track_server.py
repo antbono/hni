@@ -67,7 +67,7 @@ class VideoTrackerOb(Node):
         self.br = CvBridge()
         
         # Load the YOLOv8 model
-        self.model = YOLO('/home/toto/Gdrive/uni/robocup/robocup_ws/src/hri/hri_vision/hri_vision/models/yolov8n-face.pt')
+        self.model = YOLO('src/hni/hni_py/hni_py/models/yolov8n-face.pt')
 
         # Store the track history
         self.track_history = defaultdict(lambda: [])

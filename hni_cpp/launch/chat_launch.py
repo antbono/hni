@@ -17,19 +17,19 @@ def generate_launch_description():
         ),
         Node(
             package='hni_py',
-            executable='gstt_service.py',
+            executable='gstt_service',
             name='gstt_service_node',
             output='screen'
         ),
         Node(
             package='hni_py',
-            executable='chat_service.py',
+            executable='chat_service',
             name='chat_service_node',
             output='screen'
         ),
         Node(
             package='hni_py',
-            executable='gtts_service.py',
+            executable='gtts_service',
             name='gtts_service_node',
             output='screen'
         ),

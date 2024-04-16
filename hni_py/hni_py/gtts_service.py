@@ -56,6 +56,9 @@ class GTTSService(Node):
         self.sound_handle_b = SoundClient(self, blocking=False)
 
         self.srv = self.create_service(TextToSpeech, "gtts_service", self.gtts_callback)
+
+        self.volume = 0.4
+
         self.get_logger().info("GTTSService Server initialized.")
 
     def gtts_callback(self, sRequest, sResponse):
@@ -79,20 +82,21 @@ class GTTSService(Node):
             with open("/tmp/output.ogg", "wb") as out:
                 # Write the response to the output file.
                 out.write(response.audio_content)
-                self.get_logger().info('Audio content written to file "output.ogg"')
+                self.get_logger().debug('Audio content written to file "output.ogg"')
 
-            self.get_logger().info("Playing output.ogg at full volume.")
+            self.get_logger().info(f'Playing output.ogg at {self.volume*100}% volume.')
             
-            self.sound_handle_b.playWave("/tmp/output.ogg")
 
-            self.get_logger().info("Playwave stopped")
+            self.sound_handle_b.playWave("/tmp/output.ogg",self.volume)
+
+            self.get_logger().debug('Playwave stopped')
 
             sResponse.success = True
 
         else:
             sResponse.success = False
             sResponse.debug = "empty text to convert"
-            self.get_logger().info("empty text to convert")
+            self.get_logger().warn('empty text to convert')
 
         return sResponse
 

@@ -18,14 +18,10 @@
 import rclpy
 from rclpy.node import Node
 
-from hri_interfaces.srv import Chat
+from hni_interfaces.srv import Chat
 
-import openai
-import os
-
-api_key = os.environ["OPENAI_API_KEY"]
-
-openai.api_key = api_key
+# new
+from openai import OpenAI
 
 
 class ChatService(Node):
@@ -33,6 +29,7 @@ class ChatService(Node):
     def __init__(self):
         super().__init__('chat_service_server')
         self.srv = self.create_service(Chat, 'chatGPT_service', self.chat_callback)
+        self.client = OpenAI()
         self.chat_messages = [
         {"role": "system", "content": """You are the sixth version of the Aldebaran NAO umanoid robot. You are not an AI vocal assistant only.
                                          The software that makes you work is based on a ROS2 open-source project called 'Open Access NAO' (OAN).
@@ -64,16 +61,15 @@ class ChatService(Node):
         self.get_logger().info("Incoming request: " + sRequest.question)
         self.chat_messages.append({"role": "user", "content": sRequest.question})
         reply = self.get_response(messages=self.chat_messages)
-        reply_text = reply['content'];
+        reply_text = reply.content;
         self.get_logger().info("Reply: " + reply_text)
         self.chat_messages.append(reply)
         sResponse.answer = reply_text
         return sResponse    
         
     def get_response(self, messages:list):
-        response = openai.ChatCompletion.create(
-            model = "gpt-3.5-turbo",
-            #model = "gpt-4-turbo-preview",
+        response = self.client.chat.completions.create(
+            model = "gpt-3.5-turbo", # gpt-4-turbo-preview
             messages = messages,
             temperature = 1.0 # 0.0 - 2.0
         )
@@ -83,9 +79,9 @@ class ChatService(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_service = ChatService()
+    chat_service = ChatService()
 
-    rclpy.spin(minimal_service)
+    rclpy.spin(chat_service)
 
     rclpy.shutdown()
 
