@@ -28,4 +28,30 @@ For more info, please refer to the related [paper](https://arxiv.org/abs/2403.13
 
 ## Usage
 
+For a quick test, you can reproduce the HRI experiment described in the aformentioned paper and showed on [YouTube](https://youtu.be/LxboNtHfDJg?si=1951kaU84Miw7Ubb).
+
+
+Open a terminal on the nao
+
+	ssh nao@<nao_ip_address>
+
+On that terminal run
+
+	cd <your_oan_ws>
+	source install/local_setup.bash
+	ros2 launch hni_cpp experiment_nao_launch.py
+
+Now on your machine install xterm if you don't have it
+
+	sudo apt install -y xterm
+
+and then run
+
+	cd <your_oan_ws>
+	source install/local_setup.bash
+	ros2 launch hni_cpp experiment_pc_launch.py
+
+You will see an xterm terminal popping up. Use it to start and run the experiment.
+
+Enjoy it! :D
 

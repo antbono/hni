@@ -57,7 +57,7 @@ class GTTSService(Node):
 
         self.srv = self.create_service(TextToSpeech, "gtts_service", self.gtts_callback)
 
-        self.volume = 0.4
+        self.volume = 0.4 # from 0.1 to 1.0
 
         self.get_logger().info("GTTSService Server initialized.")
 
