@@ -15,25 +15,24 @@
 #ifndef HNI_CPP__HEAD_TRACK_ACTION_SERVER2_HPP_
 #define HNI_CPP__HEAD_TRACK_ACTION_SERVER2_HPP_
 
+#include <chrono>
 #include <functional>
+#include <iostream>
+#include <iostream>  // std::cout
+#include <map>
 #include <memory>
+#include <queue>   // std::queue
+#include <string>  // std::string, std::stof
 #include <thread>
 #include <vector>
-#include <map>
-#include <iostream>
 
-#include <chrono>
-#include <string>	 // std::string, std::stof
-#include <iostream>	 // std::cout
-#include <queue>	 // std::queue
-
+#include "hni_interfaces/action/video_tracker.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "hni_interfaces/action/video_tracker.hpp"
 //#include "hni_interfaces/action/videoTracker_feedback_message.hpp" //?
 
-#include "nao_lola_command_msgs/msg/joint_positions.hpp"
 #include "nao_lola_command_msgs/msg/joint_indexes.hpp"
+#include "nao_lola_command_msgs/msg/joint_positions.hpp"
 #include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 #include "nao_lola_sensor_msgs/msg/joint_indexes.hpp"
 #include "nao_lola_sensor_msgs/msg/joint_positions.hpp"
@@ -51,7 +50,7 @@ using GoalHandleObjTrack = rclcpp_action::ClientGoalHandle<ObjTrack>;
 class HeadTrackActionServer2 : public rclcpp::Node
 {
 public:
-  explicit HeadTrackActionServer2(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit HeadTrackActionServer2(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~HeadTrackActionServer2();
 
 private:
@@ -62,7 +61,8 @@ private:
   rclcpp::Publisher<nao_lola_command_msgs::msg::JointStiffnesses>::SharedPtr jstiff_pub_;
   rclcpp::Subscription<nao_lola_sensor_msgs::msg::JointPositions>::SharedPtr jpos_sub_;
 
-  rclcpp::Subscription<hni_interfaces::action::VideoTracker_FeedbackMessage>::SharedPtr obj_pos_sub_;
+  rclcpp::Subscription<hni_interfaces::action::VideoTracker_FeedbackMessage>::SharedPtr
+    obj_pos_sub_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -74,10 +74,10 @@ private:
   float last_pitch_;
   const double kSecToHeadReset_;
   const uint8_t kTrackMaxSize_;
-  const float kHeadWidthStep_;	 // = 0.36;
-  const float kHeadHeightStep_;	 // = 0.25;
-  const float kVerResolution_;	 // = 480; // y
-  const float kHorResolution_;	 // = 640;  // x
+  const float kHeadWidthStep_;   // = 0.36;
+  const float kHeadHeightStep_;  // = 0.25;
+  const float kVerResolution_;   // = 480; // y
+  const float kHorResolution_;   // = 640;  // x
 
   nao_lola_command_msgs::msg::JointPositions jpos_cmd_;
   nao_lola_command_msgs::msg::JointStiffnesses jstiff_cmd_;
@@ -86,19 +86,21 @@ private:
   std::map<std::vector<float>, std::string> head_pos_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
 
-  void jposCallback(const nao_lola_sensor_msgs::msg::JointPositions& joints);
+  void jposCallback(const nao_lola_sensor_msgs::msg::JointPositions & joints);
   void sendGoal();
-  void goalResponseCallback(const GoalHandleObjTrack::SharedPtr& goal_handle);
-  void feedbackCallback(GoalHandleObjTrack::SharedPtr, const std::shared_ptr<const ObjTrack::Feedback> feedback);
-  void resultCallback(const GoalHandleObjTrack::WrappedResult& result);
-  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid,
-										 std::shared_ptr<const HeadTrack::Goal> goal);
-  rclcpp_action::CancelResponse handleCancel(const std::shared_ptr<GoalHandleHeadTrack> goal_handle);
+  void goalResponseCallback(const GoalHandleObjTrack::SharedPtr & goal_handle);
+  void feedbackCallback(
+    GoalHandleObjTrack::SharedPtr, const std::shared_ptr<const ObjTrack::Feedback> feedback);
+  void resultCallback(const GoalHandleObjTrack::WrappedResult & result);
+  rclcpp_action::GoalResponse handleGoal(
+    const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const HeadTrack::Goal> goal);
+  rclcpp_action::CancelResponse handleCancel(
+    const std::shared_ptr<GoalHandleHeadTrack> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandleHeadTrack> goal_handle);
   void execute(const std::shared_ptr<GoalHandleHeadTrack> goal_handle);
 
-};	// class
+};  // class
 
 }  // namespace hni_head_track_action_server2
 
-#endif	// HNI_CPP__HEAD_TRACK_ACTION_SERVER2_HPP_
+#endif  // HNI_CPP__HEAD_TRACK_ACTION_SERVER2_HPP_

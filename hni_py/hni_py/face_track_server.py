@@ -72,10 +72,12 @@ class VideoTrackerOb(Node):
         # Store the track history
         self.track_history = defaultdict(lambda: [])
 
-        self.received_frame=np.zeros((480,640,3), np.uint8)
+        #self.received_frame=np.zeros((480,640,3), np.uint8)
 
-        self.frame = np.zeros((480,640,3), np.uint8)
+        self.received_frame = None
 
+        self.frame = None
+        
         self._loop_rate = self.create_rate( 1.0 , self.get_clock()) # Hz
 
         self.get_logger().info('node initialized')
@@ -122,65 +124,67 @@ class VideoTrackerOb(Node):
             #if self.newdata:
                 #self.newdata=False;
                 # Convert ROS Image message to OpenCV image
-                current_frame = self.br.imgmsg_to_cv2(self.received_frame)
-                #print('output dtype      : {}'.format(current_frame.dtype))
-                #print('output shape      : {}'.format(current_frame.shape))
-                #print('output encoding      : {}'.format(current_frame.tostring()))
 
-                img = current_frame.reshape(480, 640, 2)
-                rgb = cv2.cvtColor(img, cv2.COLOR_YUV2BGR_YUYV)
-                rgb = cv2.rotate(rgb, cv2.ROTATE_180)
-                self.frame = rgb
-                
-                # Run YOLOv8 tracking on the frame, persisting tracks between frames
-                results = self.model.track(self.frame, persist=True, tracker="bytetrack.yaml")
+                if self.received_frame is not None:
+                    current_frame = self.br.imgmsg_to_cv2(self.received_frame)
+                    #print('output dtype      : {}'.format(current_frame.dtype))
+                    #print('output shape      : {}'.format(current_frame.shape))
+                    #print('output encoding      : {}'.format(current_frame.tostring()))
 
-                # Get the boxes and track IDs
-                boxes = results[0].boxes.xywh.cuda()
-                
-                #boxes = results[0].boxes.xywh.cuda()
-                #track_ids = results[0].boxes.id.int().cuda().tolist()
-
-
-                try:
-                    track_ids = results[0].boxes.id.int().cuda().tolist()
-
-                    # Plot the tracks
-                    for box, track_id in zip(boxes, track_ids):
-                        x, y, w, h = box
-                        #track = self.track_history[track_id]
-                        #track.append((float(x), float(y)))  # x, y center point
-                        #if len(track) > 30:  # retain 90 tracks for 90 frames
-                            #track.pop(0)
-
-                        # Draw the tracking lines
-                        #points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
-                        #cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
-
-                        center.x = float(x)
-                        center.y = float(y)
-
-                        feedback_msg.center = center
-
-                        # Publish the feedback
-                        goal_handle.publish_feedback(feedback_msg)
-
-                        #annotated_frame = results[0].plot()
-                        #cv2.imshow("YOLOv8 Tracking", annotated_frameed_frame)
-                            
-
-                except AttributeError:
-                    self.get_logger().warning('no face detected')
-                    center.x = -1.0
-                    center.y = -1.0
-                    feedback_msg.center = center
-                    goal_handle.publish_feedback(feedback_msg)
+                    img = current_frame.reshape(480, 640, 2)
+                    rgb = cv2.cvtColor(img, cv2.COLOR_YUV2BGR_YUYV)
+                    rgb = cv2.rotate(rgb, cv2.ROTATE_180)
+                    self.frame = rgb
                     
-                except:
-                    self.get_logger().error('something else get wrong')
+                    # Run YOLOv8 tracking on the frame, persisting tracks between frames
+                    results = self.model.track(self.frame, persist=True, tracker="bytetrack.yaml")
 
-                self._loop_rate.sleep()    
-                # Visualize the results on the frame
+                    # Get the boxes and track IDs
+                    boxes = results[0].boxes.xywh.cuda()
+                    
+                    #boxes = results[0].boxes.xywh.cuda()
+                    #track_ids = results[0].boxes.id.int().cuda().tolist()
+
+
+                    try:
+                        track_ids = results[0].boxes.id.int().cuda().tolist()
+
+                        # Plot the tracks
+                        for box, track_id in zip(boxes, track_ids):
+                            x, y, w, h = box
+                            #track = self.track_history[track_id]
+                            #track.append((float(x), float(y)))  # x, y center point
+                            #if len(track) > 30:  # retain 90 tracks for 90 frames
+                                #track.pop(0)
+
+                            # Draw the tracking lines
+                            #points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+                            #cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
+
+                            center.x = float(x)
+                            center.y = float(y)
+
+                            feedback_msg.center = center
+
+                            # Publish the feedback
+                            goal_handle.publish_feedback(feedback_msg)
+
+                            #annotated_frame = results[0].plot()
+                            #cv2.imshow("YOLOv8 Tracking", annotated_frameed_frame)
+                                
+
+                    except AttributeError:
+                        self.get_logger().warning('no face detected')
+                        center.x = -1.0
+                        center.y = -1.0
+                        feedback_msg.center = center
+                        goal_handle.publish_feedback(feedback_msg)
+                        
+                    except:
+                        self.get_logger().error('something else get wrong')
+
+                    self._loop_rate.sleep()    
+                    # Visualize the results on the frame
                        
 
         goal_handle.succeed()    

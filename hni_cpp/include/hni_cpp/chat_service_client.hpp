@@ -18,14 +18,12 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
 #include "hni_interfaces/srv/chat.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
@@ -35,10 +33,10 @@ namespace hni_chat_service_client
 class ChatServiceClient : public rclcpp::Node
 {
 public:
-  explicit ChatServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit ChatServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~ChatServiceClient();
 
-  std::string sendSyncReq(std::string& phrase);
+  std::string sendSyncReq(std::string & phrase);
 
 private:
   rclcpp::Client<hni_interfaces::srv::Chat>::SharedPtr client_ptr_;

@@ -12,62 +12,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <functional>
+#include <iostream>
+#include <iostream>  // std::cout
 #include <memory>
+#include <queue>   // std::queue
+#include <string>  // std::string, std::stof
 #include <thread>
 #include <vector>
-#include <iostream>
 
-#include <chrono>
-#include <string>    // std::string, std::stof
-#include <iostream>  // std::cout
-#include <queue>     // std::queue
-
+#include "hni_interfaces/action/video_tracker.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "hni_interfaces/action/video_tracker.hpp"
 //#include "hni_interfaces/action/videoTracker_feedback_message.hpp" //?
 
-#include "nao_lola_command_msgs/msg/joint_positions.hpp"
+#include "hni_cpp/head_track_action_server.hpp"
 #include "nao_lola_command_msgs/msg/joint_indexes.hpp"
+#include "nao_lola_command_msgs/msg/joint_positions.hpp"
 #include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 #include "nao_lola_sensor_msgs/msg/joint_indexes.hpp"
 #include "nao_lola_sensor_msgs/msg/joint_positions.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "hni_cpp/head_track_action_server.hpp"
-
 namespace hni_head_track_action_server
 {
 
-HeadTrackActionServer::HeadTrackActionServer(const rclcpp::NodeOptions& options)
-  : rclcpp::Node("head_track_action_server_node", options)
-  , kSecToHeadReset_(6)
-  , kTrackMaxSize_(2)
-  , kHeadWidthStep_(0.36)
-  , kHeadHeightStep_(0.25)
-  , kVerResolution_(480)
-  , kHorResolution_(640)
+HeadTrackActionServer::HeadTrackActionServer(const rclcpp::NodeOptions & options)
+: rclcpp::Node("head_track_action_server_node", options),
+  kSecToHeadReset_(6),
+  kTrackMaxSize_(2),
+  kHeadWidthStep_(0.36),
+  kHeadHeightStep_(0.25),
+  kVerResolution_(480),
+  kHorResolution_(640)
 {
   using namespace std::placeholders;
 
-  this->client_ptr_ = rclcpp_action::create_client<hni_interfaces::action::VideoTracker>(this, "face_tracker");
+  this->client_ptr_ =
+    rclcpp_action::create_client<hni_interfaces::action::VideoTracker>(this, "face_tracker");
 
-  this->timer_ =
-      this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&HeadTrackActionServer::sendGoal, this));
+  this->timer_ = this->create_wall_timer(
+    std::chrono::milliseconds(500), std::bind(&HeadTrackActionServer::sendGoal, this));
 
   this->jpos_sub_ = this->create_subscription<nao_lola_sensor_msgs::msg::JointPositions>(
-      "sensors/joint_positions", 10, std::bind(&HeadTrackActionServer::jposCallback, this, _1));
+    "sensors/joint_positions", 10, std::bind(&HeadTrackActionServer::jposCallback, this, _1));
 
-  this->jpos_pub_ = this->create_publisher<nao_lola_command_msgs::msg::JointPositions>("effectors/joint_positions", 10);
+  this->jpos_pub_ = this->create_publisher<nao_lola_command_msgs::msg::JointPositions>(
+    "effectors/joint_positions", 10);
 
-  this->jstiff_pub_ =
-      this->create_publisher<nao_lola_command_msgs::msg::JointStiffnesses>("effectors/joint_stiffnesses", 10);
+  this->jstiff_pub_ = this->create_publisher<nao_lola_command_msgs::msg::JointStiffnesses>(
+    "effectors/joint_stiffnesses", 10);
 
   this->action_server_ = rclcpp_action::create_server<HeadTrack>(
-      this, "head_track", std::bind(&HeadTrackActionServer::handleGoal, this, _1, _2),
-      std::bind(&HeadTrackActionServer::handleCancel, this, _1),
-      std::bind(&HeadTrackActionServer::handleAccepted, this, _1));
+    this, "head_track", std::bind(&HeadTrackActionServer::handleGoal, this, _1, _2),
+    std::bind(&HeadTrackActionServer::handleCancel, this, _1),
+    std::bind(&HeadTrackActionServer::handleAccepted, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "HeadTrackActionServer Initialized");
 
@@ -79,9 +79,7 @@ HeadTrackActionServer::HeadTrackActionServer(const rclcpp::NodeOptions& options)
   //                        this, _1));
 }
 
-HeadTrackActionServer::~HeadTrackActionServer()
-{
-}
+HeadTrackActionServer::~HeadTrackActionServer() {}
 
 nao_lola_command_msgs::msg::JointIndexes joint_indexes_msg_;
 uint8_t head_joint_indexes_[2] = {
@@ -109,7 +107,7 @@ uint8_t num_rec_joints_ = sizeof(head_joint_indexes_) / sizeof(head_joint_indexe
 
 } */
 
-void HeadTrackActionServer::jposCallback(const nao_lola_sensor_msgs::msg::JointPositions& joints)
+void HeadTrackActionServer::jposCallback(const nao_lola_sensor_msgs::msg::JointPositions & joints)
 {
   last_yaw_ = joints.positions[joint_indexes_msg_.HEADYAW];
   last_pitch_ = joints.positions[joint_indexes_msg_.HEADPITCH];
@@ -125,8 +123,7 @@ void HeadTrackActionServer::sendGoal()
 
   this->timer_->cancel();
 
-  if (!this->client_ptr_->wait_for_action_server())
-  {
+  if (!this->client_ptr_->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
     rclcpp::shutdown();
   }
@@ -137,9 +134,11 @@ void HeadTrackActionServer::sendGoal()
 
   auto send_goal_options = rclcpp_action::Client<ObjTrack>::SendGoalOptions();
 
-  send_goal_options.goal_response_callback = std::bind(&HeadTrackActionServer::goalResponseCallback, this, _1);
+  send_goal_options.goal_response_callback =
+    std::bind(&HeadTrackActionServer::goalResponseCallback, this, _1);
 
-  send_goal_options.feedback_callback = std::bind(&HeadTrackActionServer::feedbackCallback, this, _1, _2);
+  send_goal_options.feedback_callback =
+    std::bind(&HeadTrackActionServer::feedbackCallback, this, _1, _2);
 
   send_goal_options.result_callback = std::bind(&HeadTrackActionServer::resultCallback, this, _1);
 
@@ -148,36 +147,31 @@ void HeadTrackActionServer::sendGoal()
   this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 }
 
-void HeadTrackActionServer::goalResponseCallback(const GoalHandleObjTrack::SharedPtr& goal_handle)
+void HeadTrackActionServer::goalResponseCallback(const GoalHandleObjTrack::SharedPtr & goal_handle)
 {
-  if (!goal_handle)
-  {
+  if (!goal_handle) {
     RCLCPP_ERROR(this->get_logger(), "Goal was rejected by object tracking server");
-  }
-  else
-  {
+  } else {
     RCLCPP_INFO(this->get_logger(), "Goal accepted by object tracking server, waiting for result");
   }
 }
 
-void HeadTrackActionServer::feedbackCallback(GoalHandleObjTrack::SharedPtr,
-                                             const std::shared_ptr<const ObjTrack::Feedback> feedback)
+void HeadTrackActionServer::feedbackCallback(
+  GoalHandleObjTrack::SharedPtr, const std::shared_ptr<const ObjTrack::Feedback> feedback)
 {
   x_track_.push(feedback->center.x);  // from 0 to kHorResolution_
 
   y_track_.push(feedback->center.y);  // from 0 to kVerResolution_
 
-  if (x_track_.size() > kTrackMaxSize_)
-  {
+  if (x_track_.size() > kTrackMaxSize_) {
     x_track_.pop();
     y_track_.pop();
   }
 }
 
-void HeadTrackActionServer::resultCallback(const GoalHandleObjTrack::WrappedResult& result)
+void HeadTrackActionServer::resultCallback(const GoalHandleObjTrack::WrappedResult & result)
 {
-  switch (result.code)
-  {
+  switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
       break;
     case rclcpp_action::ResultCode::ABORTED:
@@ -199,16 +193,14 @@ void HeadTrackActionServer::resultCallback(const GoalHandleObjTrack::WrappedResu
 
 // ###################################### server ################################
 
-rclcpp_action::GoalResponse HeadTrackActionServer::handleGoal(const rclcpp_action::GoalUUID& uuid,
-                                                              std::shared_ptr<const HeadTrack::Goal> goal)
+rclcpp_action::GoalResponse HeadTrackActionServer::handleGoal(
+  const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const HeadTrack::Goal> goal)
 {
   RCLCPP_INFO(this->get_logger(), "Received goal request");
   (void)uuid;
 
-  if (true)
-  {
-    for (auto i : head_joint_indexes_)
-    {
+  if (true) {
+    for (auto i : head_joint_indexes_) {
       jstiff_cmd_.indexes.push_back(i);
       jstiff_cmd_.stiffnesses.push_back(1.0);
     }
@@ -218,17 +210,15 @@ rclcpp_action::GoalResponse HeadTrackActionServer::handleGoal(const rclcpp_actio
     RCLCPP_DEBUG_STREAM(this->get_logger(), "Publishing 1.0 on effectors/joint_stiffnesses");
 
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-  else
-  {
+  } else {
     // RCLCPP_ERROR(this->get_logger(), ("Couldn't open file " + goal->path).c_str() );
     // fileSuccessfullyRead_ = false;
     return rclcpp_action::GoalResponse::REJECT;
   }
 }
 
-rclcpp_action::CancelResponse
-HeadTrackActionServer::handleCancel(const std::shared_ptr<GoalHandleHeadTrack> goal_handle)
+rclcpp_action::CancelResponse HeadTrackActionServer::handleCancel(
+  const std::shared_ptr<GoalHandleHeadTrack> goal_handle)
 {
   RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
   (void)goal_handle;
@@ -239,7 +229,7 @@ void HeadTrackActionServer::handleAccepted(const std::shared_ptr<GoalHandleHeadT
 {
   using namespace std::placeholders;
   // this needs to return quickly to avoid blocking the executor, so spin up a new thread
-  std::thread{ std::bind(&HeadTrackActionServer::execute, this, _1), goal_handle }.detach();
+  std::thread{std::bind(&HeadTrackActionServer::execute, this, _1), goal_handle}.detach();
 }
 
 void HeadTrackActionServer::execute(const std::shared_ptr<GoalHandleHeadTrack> goal_handle)
@@ -264,12 +254,10 @@ void HeadTrackActionServer::execute(const std::shared_ptr<GoalHandleHeadTrack> g
 
   rclcpp::Rate loop_rate(0.5);  // Hz
 
-  while (rclcpp::ok())
-  {
+  while (rclcpp::ok()) {
     RCLCPP_INFO(this->get_logger(), "inside while");
     // Check if there is a cancel request
-    if (goal_handle->is_canceling())
-    {
+    if (goal_handle->is_canceling()) {
       result->success = false;
       goal_handle->canceled(result);
       RCLCPP_INFO(this->get_logger(), "Goal canceled");
@@ -284,180 +272,148 @@ void HeadTrackActionServer::execute(const std::shared_ptr<GoalHandleHeadTrack> g
     up_available = last_pitch_ >= -2 * kHeadHeightStep_;
     down_available = last_pitch_ <= 2 * kHeadHeightStep_;
 
-    x = x_track_.back();
-    y = y_track_.back();
+    if (!x_track_.empty() && !y_track_.empty()) {
+      x = x_track_.back();
+      y = y_track_.back();
 
-    RCLCPP_INFO(this->get_logger(),
-                ("Received point (x,y) : (" + std::to_string(x) + ", " + std::to_string(y) + ")").c_str());
+      RCLCPP_INFO(
+        this->get_logger(),
+        ("Received point (x,y) : (" + std::to_string(x) + ", " + std::to_string(y) + ")").c_str());
 
-    if (x != -1 && y != -1)
-    {  // face detected
-      RCLCPP_INFO(this->get_logger(), "face detected");
+      if (x != -1 && y != -1) {
+        // face detected
+        RCLCPP_INFO(this->get_logger(), "face detected");
 
-      if (x < 0.25 * kHorResolution_)
-      {
-        if (y < 0.25 * kVerResolution_)
-        {
-          // upper left
-          RCLCPP_INFO(this->get_logger(), "upper left");
-          both = true;
+        if (x < 0.25 * kHorResolution_) {
+          if (y < 0.25 * kVerResolution_) {
+            // upper left
+            RCLCPP_INFO(this->get_logger(), "upper left");
+            both = true;
 
-          if (left_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
+            if (left_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
+            }
+            if (up_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
+              jpos_cmd_.positions.push_back(last_pitch_ - 1 * kHeadHeightStep_);
+            }
+          } else if (y > 0.75 * kVerResolution_) {
+            // down left
+            RCLCPP_INFO(this->get_logger(), "down left");
+            both = true;
+
+            if (left_available <= 2 * kHeadWidthStep_) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
+            }
+
+            if (down_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
+              jpos_cmd_.positions.push_back(last_pitch_ + 1 * kHeadHeightStep_);
+            }
+          } else {
+            // left
+            RCLCPP_INFO(this->get_logger(), "left");
+            if (left_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
+            }
           }
-          if (up_available)
-          {
+        } else if (x > 0.75 * kHorResolution_) {
+          if (y < 0.25 * kVerResolution_) {
+            // upper right
+            RCLCPP_INFO(this->get_logger(), "upper right");
+            both = true;
+            if (right_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
+            }
+            if (up_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
+              jpos_cmd_.positions.push_back(last_pitch_ - 1 * kHeadHeightStep_);
+            }
+          } else if (y > 0.75 * kVerResolution_) {
+            // down right
+            RCLCPP_INFO(this->get_logger(), "down right");
+
+            both = true;
+
+            if (right_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
+            }
+            if (down_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
+              jpos_cmd_.positions.push_back(last_pitch_ + 1 * kHeadHeightStep_);
+            }
+          } else {
+            // right
+            RCLCPP_INFO(this->get_logger(), "right");
+            if (right_available) {
+              tracking = true;
+              jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+              jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
+            }
+          }
+        } else if (!both && y < 0.25 * kVerResolution_) {
+          // up
+          RCLCPP_INFO(this->get_logger(), "up");
+
+          if (up_available) {
             tracking = true;
             jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
             jpos_cmd_.positions.push_back(last_pitch_ - 1 * kHeadHeightStep_);
           }
-        }
-        else if (y > 0.75 * kVerResolution_)
-        {
-          // down left
-          RCLCPP_INFO(this->get_logger(), "down left");
-          both = true;
+        } else if (!both && y > 0.75 * kVerResolution_) {
+          // down
+          RCLCPP_INFO(this->get_logger(), "down");
 
-          if (left_available <= 2 * kHeadWidthStep_)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
-          }
-
-          if (down_available)
-          {
+          if (down_available) {
             tracking = true;
             jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
             jpos_cmd_.positions.push_back(last_pitch_ + 1 * kHeadHeightStep_);
           }
+        } else {
+          // center of the frame
+          RCLCPP_INFO(this->get_logger(), "center");
         }
-        else
-        {
-          // left
-          RCLCPP_INFO(this->get_logger(), "left");
-          if (left_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ + 1 * kHeadWidthStep_);
-          }
+        // send command
+        if (tracking) {
+          jpos_pub_->publish(jpos_cmd_);
+          RCLCPP_INFO(this->get_logger(), "Publishing on effectors/joint_positions");
+          jpos_cmd_.indexes.clear();
+          jpos_cmd_.positions.clear();
+          first_miss_face = true;
+          reset_head = false;
         }
-      }
-      else if (x > 0.75 * kHorResolution_)
-      {
-        if (y < 0.25 * kVerResolution_)
-        {
-          // upper right
-          RCLCPP_INFO(this->get_logger(), "upper right");
-          both = true;
-          if (right_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
-          }
-          if (up_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
-            jpos_cmd_.positions.push_back(last_pitch_ - 1 * kHeadHeightStep_);
-          }
-        }
-        else if (y > 0.75 * kVerResolution_)
-        {
-          // down right
-          RCLCPP_INFO(this->get_logger(), "down right");
+        // object position available
+      } else {
+        RCLCPP_INFO(this->get_logger(), "No face detected");
+        if (first_miss_face) {
+          first_miss_face = false;
 
-          both = true;
-
-          if (right_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
-          }
-          if (down_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
-            jpos_cmd_.positions.push_back(last_pitch_ + 1 * kHeadHeightStep_);
-          }
-        }
-        else
-        {
-          // right
-          RCLCPP_INFO(this->get_logger(), "right");
-          if (right_available)
-          {
-            tracking = true;
-            jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-            jpos_cmd_.positions.push_back(last_yaw_ - 1 * kHeadWidthStep_);
-          }
-        }
-      }
-      else if (!both && y < 0.25 * kVerResolution_)
-      {
-        // up
-        RCLCPP_INFO(this->get_logger(), "up");
-
-        if (up_available)
-        {
-          tracking = true;
+          noFaceTime = rclcpp::Clock{RCL_ROS_TIME}.now();
+          RCLCPP_INFO_STREAM(this->get_logger(), "first no face time: " << noFaceTime.seconds());
+        } else if (
+          rclcpp::Clock{RCL_ROS_TIME}.now().seconds() - noFaceTime.seconds() > kSecToHeadReset_ &&
+          !reset_head) {
           jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
-          jpos_cmd_.positions.push_back(last_pitch_ - 1 * kHeadHeightStep_);
+          jpos_cmd_.positions.push_back(0.0);
+          jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
+          jpos_cmd_.positions.push_back(0.0);
+          jpos_pub_->publish(jpos_cmd_);
+          reset_head = true;
         }
-      }
-      else if (!both && y > 0.75 * kVerResolution_)
-      {
-        // down
-        RCLCPP_INFO(this->get_logger(), "down");
-
-        if (down_available)
-        {
-          tracking = true;
-          jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
-          jpos_cmd_.positions.push_back(last_pitch_ + 1 * kHeadHeightStep_);
-        }
-      }
-      else
-      {
-        // center of the frame
-        RCLCPP_INFO(this->get_logger(), "center");
-      }
-      // send command
-      if (tracking)
-      {
-        jpos_pub_->publish(jpos_cmd_);
-        RCLCPP_INFO(this->get_logger(), "Publishing on effectors/joint_positions");
-        jpos_cmd_.indexes.clear();
-        jpos_cmd_.positions.clear();
-        first_miss_face = true;
-        reset_head = false;
-      }
-      // object position available
-    }
-    else
-    {
-      RCLCPP_INFO(this->get_logger(), "No face detected");
-      if (first_miss_face)
-      {
-        first_miss_face = false;
-
-        noFaceTime = rclcpp::Clock{ RCL_ROS_TIME }.now();
-        RCLCPP_INFO_STREAM(this->get_logger(), "first no face time: " << noFaceTime.seconds());
-      }
-      else if (rclcpp::Clock{ RCL_ROS_TIME }.now().seconds() - noFaceTime.seconds() > kSecToHeadReset_ && !reset_head)
-      {
-        jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADPITCH);
-        jpos_cmd_.positions.push_back(0.0);
-        jpos_cmd_.indexes.push_back(joint_indexes_msg_.HEADYAW);
-        jpos_cmd_.positions.push_back(0.0);
-        jpos_pub_->publish(jpos_cmd_);
-        reset_head = true;
       }
     }
 

@@ -18,15 +18,13 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
-
 #include "std_srvs/srv/set_bool.hpp"
 
 namespace hni_gstt_service_client
@@ -35,7 +33,7 @@ namespace hni_gstt_service_client
 class GsttServiceClient : public rclcpp::Node
 {
 public:
-  explicit GsttServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit GsttServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~GsttServiceClient();
 
   std::string sendSyncReq();

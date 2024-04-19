@@ -1,27 +1,25 @@
+#include "hni_cpp/joints_play_action_client.hpp"
+
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
 #include "hni_interfaces/action/joints_play.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
-
-#include "hni_cpp/joints_play_action_client.hpp"
 
 namespace fs = boost::filesystem;
 
 namespace hni_joints_play_action_client
 {
 
-JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions& options)
-  : rclcpp::Node("joints_play_action_server_node", options)
+JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions & options)
+: rclcpp::Node("joints_play_action_server_node", options)
 {
   this->client_ptr_ = rclcpp_action::create_client<JointsPlay>(this, "joints_play");
 
@@ -34,9 +32,7 @@ JointsPlayActionClient::JointsPlayActionClient(const rclcpp::NodeOptions& option
   RCLCPP_INFO(this->get_logger(), "JointsPlayActionClient initialized");
 }
 
-JointsPlayActionClient::~JointsPlayActionClient()
-{
-}
+JointsPlayActionClient::~JointsPlayActionClient() {}
 
 /*
 void JointsPlayActionClient::sendGoal()  {
@@ -72,14 +68,13 @@ void JointsPlayActionClient::sendGoal()  {
   this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
 }*/
 
-void JointsPlayActionClient::sendAsyncGoal(std::string& action_path)
+void JointsPlayActionClient::sendAsyncGoal(std::string & action_path)
 {
   using namespace std::placeholders;
 
   // this->timer_->cancel();
 
-  if (!this->client_ptr_->wait_for_action_server())
-  {
+  if (!this->client_ptr_->wait_for_action_server()) {
     RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
     rclcpp::shutdown();
   }
@@ -90,9 +85,11 @@ void JointsPlayActionClient::sendAsyncGoal(std::string& action_path)
 
   auto send_goal_options = rclcpp_action::Client<JointsPlay>::SendGoalOptions();
 
-  send_goal_options.goal_response_callback = std::bind(&JointsPlayActionClient::goalResponseCallback, this, _1);
+  send_goal_options.goal_response_callback =
+    std::bind(&JointsPlayActionClient::goalResponseCallback, this, _1);
 
-  send_goal_options.feedback_callback = std::bind(&JointsPlayActionClient::feedbackCallback, this, _1, _2);
+  send_goal_options.feedback_callback =
+    std::bind(&JointsPlayActionClient::feedbackCallback, this, _1, _2);
 
   send_goal_options.result_callback = std::bind(&JointsPlayActionClient::resultCallback, this, _1);
 
@@ -125,28 +122,25 @@ std::string JointsPlayActionClient::getDefaultFullFilePath()
   // return "hello.txt";  //WORKING
 }
 
-void JointsPlayActionClient::goalResponseCallback(const GoalHandleJointsPlay::SharedPtr& goal_handle)
+void JointsPlayActionClient::goalResponseCallback(
+  const GoalHandleJointsPlay::SharedPtr & goal_handle)
 {
-  if (!goal_handle)
-  {
+  if (!goal_handle) {
     RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-  }
-  else
-  {
+  } else {
     RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
   }
 }
 
-void JointsPlayActionClient::feedbackCallback(GoalHandleJointsPlay::SharedPtr,
-                                              const std::shared_ptr<const JointsPlay::Feedback> feedback)
+void JointsPlayActionClient::feedbackCallback(
+  GoalHandleJointsPlay::SharedPtr, const std::shared_ptr<const JointsPlay::Feedback> feedback)
 {
   // TODO
 }
 
-void JointsPlayActionClient::resultCallback(const GoalHandleJointsPlay::WrappedResult& result)
+void JointsPlayActionClient::resultCallback(const GoalHandleJointsPlay::WrappedResult & result)
 {
-  switch (result.code)
-  {
+  switch (result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
       break;
     case rclcpp_action::ResultCode::ABORTED:

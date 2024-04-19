@@ -18,7 +18,7 @@
 #include <array>
 #include <cstring>
 #include <functional>
-#include <iostream>	 // std::cout
+#include <iostream>  // std::cout
 #include <memory>
 #include <string>  // std::string, std::stof
 #include <thread>
@@ -26,20 +26,17 @@
 //#include <vector>
 
 //#include <chrono>
+#include "hni_cpp/chat_service_client.hpp"
+#include "hni_cpp/gstt_service_client.hpp"
+#include "hni_cpp/gtts_service_client.hpp"
+#include "hni_cpp/joints_play_action_client.hpp"
+#include "hni_interfaces/action/chat_play.hpp"
+#include "hni_interfaces/action/joints_play.hpp"
+#include "hni_interfaces/srv/chat.hpp"
+#include "hni_interfaces/srv/text_to_speech.hpp"
 #include "nao_led_interfaces/action/leds_play.hpp"
 #include "nao_led_interfaces/msg/led_indexes.hpp"
 #include "nao_led_interfaces/msg/led_modes.hpp"
-#include "nao_led_interfaces/action/leds_play.hpp"
-#include "hni_interfaces/action/joints_play.hpp"
-#include "hni_interfaces/action/chat_play.hpp"
-#include "hni_interfaces/srv/chat.hpp"
-#include "hni_interfaces/srv/text_to_speech.hpp"
-#include "hni_cpp/joints_play_action_client.hpp"
-
-#include "hni_cpp/gstt_service_client.hpp"
-#include "hni_cpp/gtts_service_client.hpp"
-#include "hni_cpp/chat_service_client.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
@@ -51,7 +48,7 @@ namespace hni_chat_action_server
 class ChatActionServer : public rclcpp::Node
 {
 public:
-  explicit ChatActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit ChatActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~ChatActionServer();
 
 private:
@@ -66,32 +63,43 @@ private:
   // chat play action server
   rclcpp_action::Server<hni_interfaces::action::ChatPlay>::SharedPtr action_server_;
   std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>> goal_handle_;
-  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid,
-										 std::shared_ptr<const hni_interfaces::action::ChatPlay::Goal> goal);
-  rclcpp_action::CancelResponse
-  handleCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>> goal_handle);
-  void
-  handleAccepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>> goal_handle);
-  void execute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>> goal_handle);
+  rclcpp_action::GoalResponse handleGoal(
+    const rclcpp_action::GoalUUID & uuid,
+    std::shared_ptr<const hni_interfaces::action::ChatPlay::Goal> goal);
+  rclcpp_action::CancelResponse handleCancel(
+    const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>>
+      goal_handle);
+  void handleAccepted(
+    const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>>
+      goal_handle);
+  void execute(
+    const std::shared_ptr<rclcpp_action::ServerGoalHandle<hni_interfaces::action::ChatPlay>>
+      goal_handle);
 
   // joints play action client
   rclcpp_action::Client<hni_interfaces::action::JointsPlay>::SharedPtr joints_act_client_;
   void jointsPlayGoalResponseCallback(
-	  const rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::SharedPtr& goal_handle);
-  void jointsPlayFeedbackCallback(rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::SharedPtr,
-								  const std::shared_ptr<const hni_interfaces::action::JointsPlay::Feedback> feedback);
+    const rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::SharedPtr &
+      goal_handle);
+  void jointsPlayFeedbackCallback(
+    rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::SharedPtr,
+    const std::shared_ptr<const hni_interfaces::action::JointsPlay::Feedback> feedback);
   void jointsPlayResultCallback(
-	  const rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::WrappedResult& result);
+    const rclcpp_action::ClientGoalHandle<hni_interfaces::action::JointsPlay>::WrappedResult &
+      result);
 
   // leds play action client
   rclcpp_action::Client<nao_led_interfaces::action::LedsPlay>::SharedPtr leds_play_act_client_;
 
   void ledsPlayGoalResponseCallback(
-	  const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr& goal_handle);
-  void ledsPlayFeedbackCallback(rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr,
-								const std::shared_ptr<const nao_led_interfaces::action::LedsPlay::Feedback> feedback);
+    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr &
+      goal_handle);
+  void ledsPlayFeedbackCallback(
+    rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr,
+    const std::shared_ptr<const nao_led_interfaces::action::LedsPlay::Feedback> feedback);
   void ledsPlayResultCallback(
-	  const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::WrappedResult& result);
+    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::WrappedResult &
+      result);
 
   // parameters
   const double kSecPerWord_;
@@ -105,10 +113,14 @@ private:
   std::shared_ptr<hni_chat_service_client::ChatServiceClient> chat_srv_client_;
   */
 
-  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr head_goal_handle_;
-  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr eyes_goal_handle_;
-  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr ears_goal_handle_;
-  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr chest_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    head_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    eyes_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    ears_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    chest_goal_handle_;
 
   void eyesStatic(bool flag);
   void earsStatic(bool flag);
@@ -121,4 +133,4 @@ private:
 
 }  // namespace hni_chat_action_server
 
-#endif	// HNI_CPP__CHAT_ACTION_SERVER_HPP_
+#endif  // HNI_CPP__CHAT_ACTION_SERVER_HPP_

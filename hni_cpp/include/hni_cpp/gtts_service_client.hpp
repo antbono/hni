@@ -18,14 +18,12 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
 #include "hni_interfaces/srv/text_to_speech.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
@@ -35,10 +33,10 @@ namespace hni_gtts_service_client
 class GttsServiceClient : public rclcpp::Node
 {
 public:
-  explicit GttsServiceClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit GttsServiceClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~GttsServiceClient();
 
-  void sendSyncReq(std::string& text_to_speak);
+  void sendSyncReq(std::string & text_to_speak);
 
 private:
   rclcpp::Client<hni_interfaces::srv::TextToSpeech>::SharedPtr client_ptr_;

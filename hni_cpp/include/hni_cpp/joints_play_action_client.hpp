@@ -18,14 +18,12 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
 #include "hni_interfaces/action/joints_play.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
@@ -41,10 +39,10 @@ using GoalHandleJointsPlay = rclcpp_action::ClientGoalHandle<JointsPlay>;
 class JointsPlayActionClient : public rclcpp::Node
 {
 public:
-  explicit JointsPlayActionClient(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit JointsPlayActionClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~JointsPlayActionClient();
 
-  void sendAsyncGoal(std::string& action_path);
+  void sendAsyncGoal(std::string & action_path);
   // void sendGoal();
 
 private:
@@ -52,11 +50,12 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   std::string getDefaultFullFilePath();
-  void goalResponseCallback(const GoalHandleJointsPlay::SharedPtr& goal_handle);
-  void feedbackCallback(GoalHandleJointsPlay::SharedPtr, const std::shared_ptr<const JointsPlay::Feedback> feedback);
-  void resultCallback(const GoalHandleJointsPlay::WrappedResult& result);
+  void goalResponseCallback(const GoalHandleJointsPlay::SharedPtr & goal_handle);
+  void feedbackCallback(
+    GoalHandleJointsPlay::SharedPtr, const std::shared_ptr<const JointsPlay::Feedback> feedback);
+  void resultCallback(const GoalHandleJointsPlay::WrappedResult & result);
 };
 
 }  // namespace hni_joints_play_action_client
 
-#endif	// HNI_CPP__JOINTS_PLAY_ACTION_CLIENT_HPP_
+#endif  // HNI_CPP__JOINTS_PLAY_ACTION_CLIENT_HPP_

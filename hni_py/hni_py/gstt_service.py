@@ -95,6 +95,9 @@ class GSTTService(Node):
                     for content in audio_generator
                 )
 
+                # Responses is a generator that will block until a response
+                # is provided by the server.
+
                 self.get_logger().info('requests created')
                 responses_iterator = self.client.streaming_recognize(self.streaming_config, requests)
                 self.get_logger().info('responses created')

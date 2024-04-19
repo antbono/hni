@@ -15,25 +15,24 @@
 #ifndef HNI_CPP__JOINTS_PLAY_ACTION_SERVER_HPP_
 #define HNI_CPP__JOINTS_PLAY_ACTION_SERVER_HPP_
 
-#include <functional>
-#include <memory>
-#include <thread>  // std::thread, std::this_thread::yield
 #include <atomic>  // std::atomic, std::atomic_flag, ATOMIC_FLAG_INIT
-#include <vector>
-#include <iostream>
-#include <fstream>
 #include <chrono>
-#include <string>  // std::string, std::stof std::c_str
-
+#include <fstream>
+#include <functional>
+#include <iostream>
 #include <iostream>  // std::cout
+#include <memory>
+#include <string>  // std::string, std::stof std::c_str
+#include <thread>  // std::thread, std::this_thread::yield
+#include <vector>
 
 #include "hni_interfaces/action/joints_play.hpp"
+#include "nao_lola_command_msgs/msg/joint_indexes.hpp"
+#include "nao_lola_command_msgs/msg/joint_positions.hpp"
+#include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
-#include "nao_lola_command_msgs/msg/joint_positions.hpp"
-#include "nao_lola_command_msgs/msg/joint_indexes.hpp"
-#include "nao_lola_command_msgs/msg/joint_stiffnesses.hpp"
 
 namespace hni_joints_play_action_server
 {
@@ -44,7 +43,7 @@ using GoalHandleJointsPlay = rclcpp_action::ServerGoalHandle<JointsPlay>;
 class JointsPlayActionServer : public rclcpp::Node
 {
 public:
-  explicit JointsPlayActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
+  explicit JointsPlayActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
   virtual ~JointsPlayActionServer();
 
 private:
@@ -61,9 +60,10 @@ private:
   bool fileSuccessfullyRead_;
   std::atomic<bool> free_;
 
-  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid,
-                                         std::shared_ptr<const JointsPlay::Goal> goal);
-  rclcpp_action::CancelResponse handleCancel(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
+  rclcpp_action::GoalResponse handleGoal(
+    const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const JointsPlay::Goal> goal);
+  rclcpp_action::CancelResponse handleCancel(
+    const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
   void execute(const std::shared_ptr<GoalHandleJointsPlay> goal_handle);
 };
