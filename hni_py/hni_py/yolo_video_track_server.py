@@ -29,6 +29,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.timer import Rate,Timer
+from rcl_interfaces.msg import ParameterDescriptor
 
 from collections import defaultdict
 
@@ -42,12 +43,12 @@ from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Image
 class VideoTrackerOb(Node):
 
     def __init__(self):
-        super().__init__('video_tracker_server_node')
+        super().__init__('yolo_video_tracker_server_node')
 
         self._action_server = ActionServer(
             self,
             VideoTracker,
-            'face_tracker',
+            'video_obj_tracker',
             execute_callback = self.execute_callback,
             callback_group = ReentrantCallbackGroup(),
             goal_callback = self.goal_callback,
@@ -67,7 +68,14 @@ class VideoTrackerOb(Node):
         self.br = CvBridge()
         
         # Load the YOLOv8 model
-        self.model = YOLO('src/hni/hni_py/hni_py/models/yolov8n-face.pt')
+
+        parameter_descriptor = ParameterDescriptor(description='This parameter sets the Yolo tracking model you want to use')
+
+        self.declare_parameter('yolo_track_model', 'src/hni/hni_py/hni_py/models/yolov8n-face.pt', parameter_descriptor)
+
+        model_param = self.get_parameter('yolo_track_model').get_parameter_value().string_value
+
+        self.model = YOLO(model_param)
 
         # Store the track history
         self.track_history = defaultdict(lambda: [])
@@ -140,14 +148,16 @@ class VideoTrackerOb(Node):
                     results = self.model.track(self.frame, persist=True, tracker="bytetrack.yaml")
 
                     # Get the boxes and track IDs
-                    boxes = results[0].boxes.xywh.cuda()
-                    
+                    #boxes = results[0].boxes.xywh.cuda()
+                    boxes = results[0].boxes.xywh.cpu()
+
                     #boxes = results[0].boxes.xywh.cuda()
                     #track_ids = results[0].boxes.id.int().cuda().tolist()
 
 
                     try:
-                        track_ids = results[0].boxes.id.int().cuda().tolist()
+                        #track_ids = results[0].boxes.id.int().cuda().tolist()
+                        track_ids = results[0].boxes.id.int().cpu().tolist()
 
                         # Plot the tracks
                         for box, track_id in zip(boxes, track_ids):
@@ -174,7 +184,7 @@ class VideoTrackerOb(Node):
                                 
 
                     except AttributeError:
-                        self.get_logger().warning('no face detected')
+                        self.get_logger().warning('no obj detected')
                         center.x = -1.0
                         center.y = -1.0
                         feedback_msg.center = center

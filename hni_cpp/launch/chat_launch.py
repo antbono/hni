@@ -13,37 +13,37 @@ def generate_launch_description():
             package='sound_play',
             executable='soundplay_node.py',
             name='soundplay_node',
-            output='screen'
+            output='screen',
         ),
         Node(
             package='hni_py',
             executable='gstt_service',
             name='gstt_service_node',
-            output='screen'
+            output='screen',
         ),
         Node(
             package='hni_py',
             executable='chat_service',
             name='chat_service_node',
-            output='screen'
+            output='screen',
         ),
         Node(
             package='hni_py',
             executable='gtts_service',
             name='gtts_service_node',
-            output='screen'
+            output='screen',
         ),
         Node(
             package='hni_cpp',
             executable='joints_play_action_server',
             name='joints_play_action_server',
-            output='screen'
+            output='screen',
         ),
         Node(
             package='nao_led_server',
             executable='led_action_server',
             name='led_action_server',
-            output='screen'
+            output='screen',
         ),
         #Node(
         #    package='hni_cpp',
@@ -55,6 +55,6 @@ def generate_launch_description():
             package='hni_cpp',
             executable='chat_action_client',
             name='chat_action_client',
-            output='screen'
+            output='screen',
         ),
     ])

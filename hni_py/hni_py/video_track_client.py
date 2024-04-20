@@ -25,11 +25,11 @@ from rclpy.action import ActionClient
 from rclpy.node import Node
 
 
-class FaceTrackClient(Node):
+class VideoTrackingClient(Node):
 
     def __init__(self):
-        super().__init__('face_tracker_client_node')
-        self._action_client = ActionClient(self, VideoTracker, 'face_tracker')
+        super().__init__('video_tracking_client_node')
+        self._action_client = ActionClient(self, VideoTracker, 'obj_tracker')
 
     def goal_response_callback(self, future):
         goal_handle = future.result()
@@ -75,7 +75,7 @@ class FaceTrackClient(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    action_client = FaceTrackClient()
+    action_client = VideoTrackingClient()
 
     action_client.send_goal()
 

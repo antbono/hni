@@ -50,12 +50,12 @@ HeadTrackActionServer2::HeadTrackActionServer2(const rclcpp::NodeOptions & optio
   using namespace std::placeholders;
 
   this->client_ptr_ =
-    rclcpp_action::create_client<hni_interfaces::action::VideoTracker>(this, "face_tracker");
+    rclcpp_action::create_client<hni_interfaces::action::VideoTracker>(this, "video_obj_tracker");
 
   this->timer_ = this->create_wall_timer(
     std::chrono::milliseconds(500), std::bind(&HeadTrackActionServer2::sendGoal, this));
 
-  this->publisher_ = this->create_publisher<std_msgs::msg::String>("action_req2", 10);
+  this->publisher_ = this->create_publisher<std_msgs::msg::String>("action_req_head", 10);
 
   this->action_server_ = rclcpp_action::create_server<HeadTrack>(
     this, "head_track", std::bind(&HeadTrackActionServer2::handleGoal, this, _1, _2),
