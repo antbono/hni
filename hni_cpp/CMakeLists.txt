@@ -146,49 +146,6 @@ install(
   INCLUDES DESTINATION include)
 
 
-#################### HEAD_TRACK_SERVER2 ###########################
-add_library(head_track_server2 SHARED
-  src/head_track_action_server2.cpp
-)
-target_include_directories(head_track_server2 PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-target_compile_definitions(head_track_server2
-  PRIVATE "CUSTOM_ACTION_CPP_BUILDING_DLL"
-)
-
-set(HEAD_TRACK_SERVER_INCLUDE_DEPENDS
-  ament_index_cpp
-  rclcpp
-  rclcpp_action
-  rclcpp_components
-  hni_interfaces
-  nao_lola_sensor_msgs
-  nao_lola_command_msgs
-  std_msgs)
-
-ament_target_dependencies(head_track_server2 ${HEAD_TRACK_SERVER_INCLUDE_DEPENDS})
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(${HEAD_TRACK_SERVER_INCLUDE_DEPENDS})
-
-rclcpp_components_register_node(head_track_server2 
-  PLUGIN "hni_head_track_action_server2::HeadTrackActionServer2" 
-  EXECUTABLE head_track_action_server2
-)
-# Install
-install(
-  DIRECTORY include/
-  DESTINATION include)
-install(
-  TARGETS head_track_server2
-  EXPORT export_${PROJECT_NAME}
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include)
-
-
 #################### HEAD_TRACK_CLIENT ###########################
 add_library(head_track_client SHARED
   src/head_track_action_client.cpp

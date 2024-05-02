@@ -15,7 +15,7 @@ def generate_launch_description():
         ),
         Node(
             package='hni_cpp',
-            executable='head_track_action_server2',
+            executable='head_track_action_server',
             name='head_track_action_server_node',
             remappings=[
                 ('video_obj_tracker/_action/feedback', 'video_face_tracker/_action/feedback'),

@@ -19,6 +19,7 @@
 #include <functional>
 #include <iostream>
 #include <iostream>  // std::cout
+#include <map>
 #include <memory>
 #include <queue>   // std::queue
 #include <string>  // std::string, std::stof
@@ -36,6 +37,7 @@
 #include "nao_lola_sensor_msgs/msg/joint_indexes.hpp"
 #include "nao_lola_sensor_msgs/msg/joint_positions.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
+#include "std_msgs/msg/string.hpp"
 
 namespace hni_head_track_action_server
 {
@@ -81,6 +83,8 @@ private:
   nao_lola_command_msgs::msg::JointStiffnesses jstiff_cmd_;
 
   bool fileSuccessfullyRead_;
+  std::map<std::vector<float>, std::string> head_pos_;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
 
   void jposCallback(const nao_lola_sensor_msgs::msg::JointPositions & joints);
   void sendGoal();
